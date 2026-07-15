@@ -5,6 +5,8 @@ import org.groomi.groomidevbackend.auth.dto.login.LoginRequest;
 import org.groomi.groomidevbackend.auth.dto.login.LoginResponse;
 import org.groomi.groomidevbackend.auth.dto.register.RegisterRequest;
 import org.groomi.groomidevbackend.auth.dto.register.RegisterResponse;
+import org.groomi.groomidevbackend.auth.exception_handlers.login.InvalidCredentialsException;
+import org.groomi.groomidevbackend.auth.exception_handlers.register.AccountAlreadyExistsException;
 import org.groomi.groomidevbackend.user.UserProfile;
 import org.groomi.groomidevbackend.user.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -28,7 +30,7 @@ public class AuthService {
 
     public RegisterResponse register(RegisterRequest request) {
         if(userRepository.existsByEmail(request.getEmail())){
-            throw new RuntimeException("User account already exists!");
+            throw new AccountAlreadyExistsException(request.getEmail());
         }
         UserProfile user = new UserProfile(
                 request.getFirstName(),
@@ -50,12 +52,12 @@ public class AuthService {
         UserProfile user = userRepository
                 .findByEmail(request.getEmail())
                 .orElseThrow(() ->
-                        new RuntimeException("Invalid credentials")
+                        new InvalidCredentialsException(request.getEmail(), request.getPassword())
                 );
 
         boolean valid =  passwordEncoder.matches(request.getPassword(), user.getPasswordHash());
         if (!valid) {
-            throw new RuntimeException("Invalid credentials");
+            throw new InvalidCredentialsException(request.getEmail(), request.getPassword());
         }
 
 
