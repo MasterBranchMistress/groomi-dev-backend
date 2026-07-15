@@ -1,5 +1,8 @@
 package org.groomi.groomidevbackend.auth;
 
+import jakarta.validation.Valid;
+import org.groomi.groomidevbackend.auth.dto.login.LoginRequest;
+import org.groomi.groomidevbackend.auth.dto.login.LoginResponse;
 import org.groomi.groomidevbackend.auth.dto.register.RegisterRequest;
 import org.groomi.groomidevbackend.auth.dto.register.RegisterResponse;
 import org.groomi.groomidevbackend.shared_packages.api_response.ApiResponse;
@@ -24,7 +27,7 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<RegisterResponse>> register(
-            @RequestBody RegisterRequest request
+           @Valid @RequestBody RegisterRequest request
     ) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -35,4 +38,11 @@ public class AuthController {
                         )
                 );
     }
+
+    @PostMapping("/login")
+    public ResponseEntity<ApiResponse<LoginResponse>> login(
+            @Valid @RequestBody LoginRequest request
+    ){
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>("Login Successful", authService.login(request)))
+    ;}
 }

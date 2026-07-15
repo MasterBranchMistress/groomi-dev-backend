@@ -41,6 +41,7 @@ public class UserProfile {
 
 
 
+    protected  UserProfile() {}
     public UserProfile(
             String firstName,
             String lastName,
