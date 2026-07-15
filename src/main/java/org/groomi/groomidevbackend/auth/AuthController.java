@@ -3,6 +3,8 @@ package org.groomi.groomidevbackend.auth;
 import jakarta.validation.Valid;
 import org.groomi.groomidevbackend.auth.dto.login.LoginRequest;
 import org.groomi.groomidevbackend.auth.dto.login.LoginResponse;
+import org.groomi.groomidevbackend.auth.dto.logout.LogoutRequest;
+import org.groomi.groomidevbackend.auth.dto.logout.LogoutResponse;
 import org.groomi.groomidevbackend.auth.dto.register.RegisterRequest;
 import org.groomi.groomidevbackend.auth.dto.register.RegisterResponse;
 import org.groomi.groomidevbackend.shared_packages.api_response.ApiResponse;
@@ -45,4 +47,11 @@ public class AuthController {
     ){
         return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>("Login Successful", authService.login(request)))
     ;}
+
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponse<LogoutResponse>> logout(
+            @Valid @RequestBody LogoutRequest request
+    ){
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>("Logout Successful", authService.logout(request)))
+                ;}
 }

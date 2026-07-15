@@ -3,6 +3,8 @@ package org.groomi.groomidevbackend.auth;
 import org.groomi.groomidevbackend.auth.auth_providers.AuthProvider;
 import org.groomi.groomidevbackend.auth.dto.login.LoginRequest;
 import org.groomi.groomidevbackend.auth.dto.login.LoginResponse;
+import org.groomi.groomidevbackend.auth.dto.logout.LogoutRequest;
+import org.groomi.groomidevbackend.auth.dto.logout.LogoutResponse;
 import org.groomi.groomidevbackend.auth.dto.register.RegisterRequest;
 import org.groomi.groomidevbackend.auth.dto.register.RegisterResponse;
 import org.groomi.groomidevbackend.auth.exception_handlers.login.InvalidCredentialsException;
@@ -66,5 +68,10 @@ public class AuthService {
                 user.getEmail(),
                 user.getFirstName() + " logged in!"
         );
+    }
+
+    public LogoutResponse logout(LogoutRequest request){
+        //TODO: end session
+        return new LogoutResponse("User Logged out");
     }
 }
