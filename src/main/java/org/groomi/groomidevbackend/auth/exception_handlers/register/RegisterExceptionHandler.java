@@ -5,7 +5,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
 import java.time.LocalDateTime;
 
 @RestControllerAdvice(basePackages = "org.groomi.groomidevbackend.auth")
@@ -16,6 +15,7 @@ public class RegisterExceptionHandler {
 
         ErrorResponse response = new ErrorResponse(
                 HttpStatus.CONFLICT.value(),
+                "ACCOUNT_ALREADY_EXISTS",
                 ex.getMessage(),
                 LocalDateTime.now()
         );

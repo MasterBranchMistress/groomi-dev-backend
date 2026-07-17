@@ -16,6 +16,7 @@ public class GlobalExceptionHandler {
 
         ErrorResponse response = new ErrorResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                "UNKNOWN_ERROR",
                 "An unexpected error occurred.",
                 LocalDateTime.now()
         );
