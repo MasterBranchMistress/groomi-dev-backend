@@ -9,27 +9,27 @@ import org.groomi.groomidevbackend.auth.dto.register.RegisterRequest;
 import org.groomi.groomidevbackend.auth.dto.register.RegisterResponse;
 import org.groomi.groomidevbackend.auth.exception_handlers.login.InvalidCredentialsException;
 import org.groomi.groomidevbackend.auth.exception_handlers.register.AccountAlreadyExistsException;
+import org.groomi.groomidevbackend.auth.token_generator.JwtService;
 import org.groomi.groomidevbackend.user.UserProfile;
 import org.groomi.groomidevbackend.user.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 public class AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
     public AuthService(
             UserRepository userRepository,
-            PasswordEncoder passwordEncoder
+            PasswordEncoder passwordEncoder,
+            JwtService jwtService
     ) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
     }
-
-
     public RegisterResponse register(RegisterRequest request) {
         if(userRepository.existsByEmail(request.getEmail())){
             throw new AccountAlreadyExistsException(request.getEmail());
@@ -56,22 +56,20 @@ public class AuthService {
                 .orElseThrow(() ->
                         new InvalidCredentialsException(request.getEmail(), request.getPassword())
                 );
-
         boolean valid =  passwordEncoder.matches(request.getPassword(), user.getPasswordHash());
         if (!valid) {
             throw new InvalidCredentialsException(request.getEmail(), request.getPassword());
         }
-
-
+        String token =  jwtService.generateToken(user);
         return new LoginResponse(
                 user.getId(),
                 user.getEmail(),
-                user.getFirstName() + " logged in!"
+                token
+
         );
     }
-
     public LogoutResponse logout(LogoutRequest request){
-        //TODO: end session
+        //TODO: invalidate token
         return new LogoutResponse("User Logged out");
     }
 }

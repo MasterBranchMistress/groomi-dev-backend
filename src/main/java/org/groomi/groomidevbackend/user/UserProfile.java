@@ -16,6 +16,10 @@ public class UserProfile {
     @GeneratedValue
     private UUID id;
 
+    public UUID getId() {
+        return id;
+    }
+
     @Column(nullable = false)
     private String firstName;
 
@@ -27,6 +31,10 @@ public class UserProfile {
 
     @Column(unique = true, nullable = false)
     private String email;
+
+    public String getEmail(){
+        return email;
+    }
 
     @Column(nullable = false)
     private String passwordHash;
