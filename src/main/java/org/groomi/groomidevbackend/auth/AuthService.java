@@ -49,7 +49,6 @@ public class AuthService {
                 request.getEmail()
         );
     }
-
     public LoginResponse login(LoginRequest request){
         UserProfile user = userRepository
                 .findByEmail(request.getEmail())

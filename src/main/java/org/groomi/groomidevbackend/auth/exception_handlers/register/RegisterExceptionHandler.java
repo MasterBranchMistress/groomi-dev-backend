@@ -3,6 +3,7 @@ package org.groomi.groomidevbackend.auth.exception_handlers.register;
 import org.groomi.groomidevbackend.shared_packages.exception_handling.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.time.LocalDateTime;
@@ -22,6 +23,20 @@ public class RegisterExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
+                .body(response);
+    }
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleValidationException(
+            MethodArgumentNotValidException ex
+    ) {
+        ErrorResponse response = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                "VALIDATION_ERROR",
+                "Invalid request fields.",
+                LocalDateTime.now()
+        );
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
                 .body(response);
     }
 }

@@ -21,11 +21,9 @@ public class AuthController {
 
     private final AuthService authService;
 
-
     public AuthController(AuthService authService) {
         this.authService = authService;
     }
-
 
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<RegisterResponse>> register(
@@ -40,7 +38,6 @@ public class AuthController {
                         )
                 );
     }
-
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<LoginResponse>> login(
             @Valid @RequestBody LoginRequest request
