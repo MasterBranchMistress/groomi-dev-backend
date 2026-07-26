@@ -2,11 +2,10 @@ package org.groomi.groomidevbackend.auth.dto.register;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.UUID;
 
 @Getter
 public class RegisterRequest {
@@ -19,11 +18,15 @@ public class RegisterRequest {
     private String lastName;
     @Setter
     @NotBlank
+    @Pattern(
+            regexp = "^\\+?[0-9\\s\\-()]{10,20}$",
+            message = "Invalid Phone Number."
+    )
     private String phoneNumber;
     @Setter
-    @Email
+    @Email(message = "Invalid Email Address.")
     private String email;
     @Setter
-    @Size(min = 8)
+    @Size(min = 6)
     private String password;
 }
