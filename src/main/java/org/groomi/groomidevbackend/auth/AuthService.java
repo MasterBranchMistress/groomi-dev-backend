@@ -1,12 +1,15 @@
 package org.groomi.groomidevbackend.auth;
 
 import org.groomi.groomidevbackend.auth.auth_providers.AuthProvider;
+import org.groomi.groomidevbackend.auth.dto.forgot_password.ForgotPasswordRequest;
+import org.groomi.groomidevbackend.auth.dto.forgot_password.ForgotPasswordResponse;
 import org.groomi.groomidevbackend.auth.dto.login.LoginRequest;
 import org.groomi.groomidevbackend.auth.dto.login.LoginResponse;
 import org.groomi.groomidevbackend.auth.dto.logout.LogoutRequest;
 import org.groomi.groomidevbackend.auth.dto.logout.LogoutResponse;
 import org.groomi.groomidevbackend.auth.dto.register.RegisterRequest;
 import org.groomi.groomidevbackend.auth.dto.register.RegisterResponse;
+import org.groomi.groomidevbackend.auth.email_service.EmailService;
 import org.groomi.groomidevbackend.auth.exception_handlers.login.InvalidCredentialsException;
 import org.groomi.groomidevbackend.auth.exception_handlers.register.AccountAlreadyExistsException;
 import org.groomi.groomidevbackend.auth.token_generator.JwtService;
@@ -30,6 +33,7 @@ public class AuthService {
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
     }
+
     public RegisterResponse register(RegisterRequest request) {
         if(userRepository.existsByEmail(request.getEmail())){
             throw new AccountAlreadyExistsException(request.getEmail());
@@ -49,6 +53,7 @@ public class AuthService {
                 request.getEmail()
         );
     }
+
     public LoginResponse login(LoginRequest request){
         UserProfile user = userRepository
                 .findByEmail(request.getEmail())
@@ -67,6 +72,14 @@ public class AuthService {
 
         );
     }
+
+    public ForgotPasswordResponse submitEmail(ForgotPasswordRequest request, EmailService emailService){
+        UserProfile user =  userRepository.findByEmail(request.getEmail()).orElseThrow();
+        String token = jwtService.generateToken(user);
+        emailService.sendEmail(user.getEmail(), "Reset Your Password", "Email was successful - REMOVE THIS TOKEN OUT OF DEV " + token);
+        return new ForgotPasswordResponse("Password reset email sent");
+    }
+
     public LogoutResponse logout(LogoutRequest request){
         //TODO: invalidate token
         return new LogoutResponse("User Logged out");

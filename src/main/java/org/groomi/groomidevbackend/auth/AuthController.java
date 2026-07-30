@@ -1,12 +1,15 @@
 package org.groomi.groomidevbackend.auth;
 
 import jakarta.validation.Valid;
+import org.groomi.groomidevbackend.auth.dto.forgot_password.ForgotPasswordRequest;
+import org.groomi.groomidevbackend.auth.dto.forgot_password.ForgotPasswordResponse;
 import org.groomi.groomidevbackend.auth.dto.login.LoginRequest;
 import org.groomi.groomidevbackend.auth.dto.login.LoginResponse;
 import org.groomi.groomidevbackend.auth.dto.logout.LogoutRequest;
 import org.groomi.groomidevbackend.auth.dto.logout.LogoutResponse;
 import org.groomi.groomidevbackend.auth.dto.register.RegisterRequest;
 import org.groomi.groomidevbackend.auth.dto.register.RegisterResponse;
+import org.groomi.groomidevbackend.auth.email_service.EmailService;
 import org.groomi.groomidevbackend.shared_packages.api_response.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -51,4 +54,12 @@ public class AuthController {
     ){
         return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>("Logout Successful", authService.logout(request)))
                 ;}
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<ApiResponse<ForgotPasswordResponse>> submitEmail(
+            @Valid @RequestBody ForgotPasswordRequest request,
+            EmailService emailService
+            ){
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>("Email successfully sent.", authService.submitEmail(request, emailService)));
+    }
 }
