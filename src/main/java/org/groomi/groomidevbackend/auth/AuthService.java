@@ -1,5 +1,6 @@
 package org.groomi.groomidevbackend.auth;
 
+import lombok.val;
 import org.groomi.groomidevbackend.auth.auth_providers.AuthProvider;
 import org.groomi.groomidevbackend.auth.dto.forgot_password.ForgotPasswordRequest;
 import org.groomi.groomidevbackend.auth.dto.forgot_password.ForgotPasswordResponse;
@@ -76,7 +77,15 @@ public class AuthService {
     public ForgotPasswordResponse submitEmail(ForgotPasswordRequest request, EmailService emailService){
         UserProfile user =  userRepository.findByEmail(request.getEmail()).orElseThrow();
         String token = jwtService.generateToken(user);
-        emailService.sendEmail(user.getEmail(), "Reset Your Password", "Email was successful - REMOVE THIS TOKEN OUT OF DEV " + token);
+        try{
+            emailService.sendEmail(
+                    user.getEmail(),
+                    "Reset Your Password",
+                    "Email was successful - REMOVE THIS TOKEN OUT OF DEV " + token
+            );
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
         return new ForgotPasswordResponse("Password reset email sent");
     }
 

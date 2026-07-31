@@ -6,8 +6,8 @@ import org.springframework.stereotype.Service
 import software.amazon.awssdk.services.sesv2.model.*
 
 @Service
-class EmailService private constructor(
-    @Value($$"${test.email.sender}")
+class EmailService(
+    @Value("\${test.email.sender}")
     var sender: String,
     private val sesClient: EmailServiceClient
 ) {

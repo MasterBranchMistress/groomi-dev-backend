@@ -8,6 +8,6 @@ import software.amazon.awssdk.services.sesv2.SesV2Client;
 public class EmailServiceClient {
     @Bean
     public SesV2Client sesV2Client(){
-        return SesV2Client.builder().region(Region.US_EAST_1).build();
+        return SesV2Client.builder().region(Region.US_EAST_2).build();
     }
 }

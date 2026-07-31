@@ -23,9 +23,10 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthService authService;
+    private final EmailService emailService;
 
-    public AuthController(AuthService authService) {
-        this.authService = authService;
+    public AuthController(AuthService authService, EmailService emailService) {
+        this.authService = authService; this.emailService=  emailService;
     }
 
     @PostMapping("/register")
@@ -57,8 +58,7 @@ public class AuthController {
 
     @PostMapping("/forgot-password")
     public ResponseEntity<ApiResponse<ForgotPasswordResponse>> submitEmail(
-            @Valid @RequestBody ForgotPasswordRequest request,
-            EmailService emailService
+            @Valid @RequestBody ForgotPasswordRequest request
             ){
         return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>("Email successfully sent.", authService.submitEmail(request, emailService)));
     }
