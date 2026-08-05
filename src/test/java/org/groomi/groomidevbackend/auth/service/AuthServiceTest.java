@@ -89,7 +89,7 @@ class AuthServiceTest {
         when(userRepository.save(any(UserProfile.class)))
                 .thenReturn(TestUser.isValidUser());
         RegisterResponse response = authService.register(request);
-        assertEquals(request.getEmail(), response.getEmail());
+        assertEquals(request.getEmail(), response.email());
         verify(passwordEncoder)
                 .encode(request.getPassword());
         verify(userRepository)

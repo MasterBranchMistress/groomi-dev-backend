@@ -1,14 +1,15 @@
 package org.groomi.groomidevbackend.auth;
 
 import jakarta.validation.Valid;
-import org.groomi.groomidevbackend.auth.dto.forgot_password.ForgotPasswordRequest;
-import org.groomi.groomidevbackend.auth.dto.forgot_password.ForgotPasswordResponse;
+import org.groomi.groomidevbackend.auth.dto.forgot_password.*;
+import org.groomi.groomidevbackend.auth.dto.resend_verification_link.SendVerificationLinkToUsersEmail_RESEND_LINK;
 import org.groomi.groomidevbackend.auth.dto.login.LoginRequest;
 import org.groomi.groomidevbackend.auth.dto.login.LoginResponse;
 import org.groomi.groomidevbackend.auth.dto.logout.LogoutRequest;
 import org.groomi.groomidevbackend.auth.dto.logout.LogoutResponse;
 import org.groomi.groomidevbackend.auth.dto.register.RegisterRequest;
 import org.groomi.groomidevbackend.auth.dto.register.RegisterResponse;
+import org.groomi.groomidevbackend.auth.dto.resend_verification_link.SendVerificationLinkResponse_RESEND_LINK;
 import org.groomi.groomidevbackend.auth.email_service.EmailService;
 import org.groomi.groomidevbackend.shared_packages.api_response.ApiResponse;
 import org.springframework.http.HttpStatus;
@@ -33,11 +34,8 @@ public class AuthController {
     public ResponseEntity<ApiResponse<RegisterResponse>> register(
            @Valid @RequestBody RegisterRequest request
     ) {
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(
-                        new ApiResponse<>(
-                                "User registered successfully",
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+                        new ApiResponse<>("User registered successfully",
                                 authService.register(request)
                         )
                 );
@@ -57,9 +55,15 @@ public class AuthController {
                 ;}
 
     @PostMapping("/forgot-password")
-    public ResponseEntity<ApiResponse<ForgotPasswordResponse>> submitEmail(
-            @Valid @RequestBody ForgotPasswordRequest request
+    public ResponseEntity<ApiResponse<SendVerificiationLinkResponse_FORGOT_PASSWORD>> sendVerificationLinkToUsersEmail(
+            @Valid @RequestBody SendVerificationLinkToUsersEmail_FORGOT_PASSWORD request
             ){
-        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>("Email successfully sent.", authService.submitEmail(request, emailService)));
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>("Email successfully sent.", authService.sendVerificationLinkToUsersEmail_FORGOT_PASSWORD(request, emailService)));
+    }
+    @PostMapping("/resend-reset-link")
+    public ResponseEntity<ApiResponse<SendVerificationLinkResponse_RESEND_LINK>> sendVerificationLinkToUsersEmail(
+            @Valid @RequestBody SendVerificationLinkToUsersEmail_RESEND_LINK request
+    ){
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>("Email successfully sent.", authService.sendVerificationLinkToUsersEmail_RESEND_LINK(request, emailService)));
     }
 }
