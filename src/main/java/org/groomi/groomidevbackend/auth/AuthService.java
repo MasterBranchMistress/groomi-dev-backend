@@ -1,16 +1,14 @@
 package org.groomi.groomidevbackend.auth;
 
 import org.groomi.groomidevbackend.auth.auth_providers.AuthProvider;
-import org.groomi.groomidevbackend.auth.dto.forgot_password.SendVerificationLinkToUsersEmail_FORGOT_PASSWORD;
-import org.groomi.groomidevbackend.auth.dto.forgot_password.SendVerificiationLinkResponse_FORGOT_PASSWORD;
+import org.groomi.groomidevbackend.auth.dto.forgot_password.SendVerificationLinkToUsersEmail;
+import org.groomi.groomidevbackend.auth.dto.forgot_password.SendVerificationLinkResponse;
 import org.groomi.groomidevbackend.auth.dto.login.LoginRequest;
 import org.groomi.groomidevbackend.auth.dto.login.LoginResponse;
 import org.groomi.groomidevbackend.auth.dto.logout.LogoutRequest;
 import org.groomi.groomidevbackend.auth.dto.logout.LogoutResponse;
 import org.groomi.groomidevbackend.auth.dto.register.RegisterRequest;
 import org.groomi.groomidevbackend.auth.dto.register.RegisterResponse;
-import org.groomi.groomidevbackend.auth.dto.resend_verification_link.SendVerificationLinkToUsersEmail_RESEND_LINK;
-import org.groomi.groomidevbackend.auth.dto.resend_verification_link.SendVerificationLinkResponse_RESEND_LINK;
 import org.groomi.groomidevbackend.auth.email_service.EmailService;
 import org.groomi.groomidevbackend.auth.exception_handlers.login.InvalidCredentialsException;
 import org.groomi.groomidevbackend.auth.exception_handlers.register.AccountAlreadyExistsException;
@@ -75,7 +73,7 @@ public class AuthService {
         );
     }
 
-    public SendVerificiationLinkResponse_FORGOT_PASSWORD sendVerificationLinkToUsersEmail_FORGOT_PASSWORD(SendVerificationLinkToUsersEmail_FORGOT_PASSWORD request, EmailService emailService){
+    public SendVerificationLinkResponse sendVerificationLinkToUsersEmail(SendVerificationLinkToUsersEmail request, EmailService emailService){
         UserProfile user =  userRepository.findByEmail(request.getEmail()).orElseThrow();
         String token = jwtService.generateToken(user);
         try{
@@ -87,22 +85,7 @@ public class AuthService {
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
-        return new SendVerificiationLinkResponse_FORGOT_PASSWORD("Password reset email sent");
-    }
-
-    public SendVerificationLinkResponse_RESEND_LINK sendVerificationLinkToUsersEmail_RESEND_LINK(SendVerificationLinkToUsersEmail_RESEND_LINK request, EmailService emailService){
-        UserProfile user =  userRepository.findByEmail(request.getEmail()).orElseThrow();
-        String token = jwtService.generateToken(user);
-        try{
-            emailService.sendEmail(
-                    user.getEmail(),
-                    "Reset Your Password",
-                    "Email was successful - REMOVE THIS TOKEN OUT OF DEV " + token
-            );
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
-        }
-        return new SendVerificationLinkResponse_RESEND_LINK("Email resent to user.");
+        return new SendVerificationLinkResponse("Password reset email sent");
     }
 
     public LogoutResponse logout(LogoutRequest request){

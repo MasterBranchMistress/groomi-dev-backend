@@ -55,15 +55,9 @@ public class AuthController {
                 ;}
 
     @PostMapping("/forgot-password")
-    public ResponseEntity<ApiResponse<SendVerificiationLinkResponse_FORGOT_PASSWORD>> sendVerificationLinkToUsersEmail(
-            @Valid @RequestBody SendVerificationLinkToUsersEmail_FORGOT_PASSWORD request
+    public ResponseEntity<ApiResponse<SendVerificationLinkResponse>> sendVerificationLinkToUsersEmail(
+            @Valid @RequestBody SendVerificationLinkToUsersEmail request
             ){
-        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>("Email successfully sent.", authService.sendVerificationLinkToUsersEmail_FORGOT_PASSWORD(request, emailService)));
-    }
-    @PostMapping("/resend-reset-link")
-    public ResponseEntity<ApiResponse<SendVerificationLinkResponse_RESEND_LINK>> sendVerificationLinkToUsersEmail(
-            @Valid @RequestBody SendVerificationLinkToUsersEmail_RESEND_LINK request
-    ){
-        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>("Email successfully sent.", authService.sendVerificationLinkToUsersEmail_RESEND_LINK(request, emailService)));
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>("Email successfully sent.", authService.sendVerificationLinkToUsersEmail(request, emailService)));
     }
 }
