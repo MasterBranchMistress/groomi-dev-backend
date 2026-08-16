@@ -2,14 +2,12 @@ package org.groomi.groomidevbackend.auth;
 
 import jakarta.validation.Valid;
 import org.groomi.groomidevbackend.auth.dto.forgot_password.*;
-import org.groomi.groomidevbackend.auth.dto.resend_verification_link.SendVerificationLinkToUsersEmail_RESEND_LINK;
 import org.groomi.groomidevbackend.auth.dto.login.LoginRequest;
 import org.groomi.groomidevbackend.auth.dto.login.LoginResponse;
 import org.groomi.groomidevbackend.auth.dto.logout.LogoutRequest;
 import org.groomi.groomidevbackend.auth.dto.logout.LogoutResponse;
 import org.groomi.groomidevbackend.auth.dto.register.RegisterRequest;
 import org.groomi.groomidevbackend.auth.dto.register.RegisterResponse;
-import org.groomi.groomidevbackend.auth.dto.resend_verification_link.SendVerificationLinkResponse_RESEND_LINK;
 import org.groomi.groomidevbackend.auth.email_service.EmailService;
 import org.groomi.groomidevbackend.shared_packages.api_response.ApiResponse;
 import org.springframework.http.HttpStatus;
