@@ -11,6 +11,7 @@ import org.groomi.groomidevbackend.auth.fixtures.UserLoginRequest;
 import org.groomi.groomidevbackend.auth.fixtures.TestUser;
 import org.groomi.groomidevbackend.auth.fixtures.UserRegisterRequest;
 import org.groomi.groomidevbackend.auth.token_generator.JwtService;
+import org.groomi.groomidevbackend.auth.token_generator.token_types.TokenType;
 import org.groomi.groomidevbackend.user.UserProfile;
 import org.groomi.groomidevbackend.user.UserRepository;
 import org.junit.jupiter.api.Test;
@@ -44,7 +45,7 @@ class AuthServiceTest {
         UserProfile user =  TestUser.isValidUser();
         when(userRepository.findByEmail(request.getEmail())).thenReturn(Optional.of(user));
         when(passwordEncoder.matches(request.getPassword(), user.getPasswordHash())).thenReturn(true);
-        when(jwtService.generateToken(user)).thenReturn("fake-jwt-token");
+        when(jwtService.generateToken(user, TokenType.SESSION_LOGGED_IN)).thenReturn("fake-jwt-token");
         LoginResponse response = authService.login(request);
         assertEquals(user.getId(), response.userId());
         assertEquals(user.getEmail(), response.email());

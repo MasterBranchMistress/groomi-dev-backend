@@ -3,6 +3,7 @@ package org.groomi.groomidevbackend.user;
 import jakarta.persistence.*;
 import lombok.Getter;
 import org.groomi.groomidevbackend.auth.auth_providers.AuthProvider;
+import software.amazon.awssdk.services.sesv2.endpoints.internal.Value;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -39,6 +40,9 @@ public class UserProfile {
     @Column(nullable = false)
     private String passwordHash;
 
+    @Column(nullable = false)
+    private Boolean emailVerified;
+
     @Enumerated(EnumType.STRING)
     private AuthProvider provider;
 
@@ -55,6 +59,7 @@ public class UserProfile {
             String lastName,
             String phoneNumber,
             String email,
+            Boolean emailVerified,
             String passwordHash,
             AuthProvider provider
     ) {
@@ -62,6 +67,7 @@ public class UserProfile {
         this.lastName = lastName;
         this.phoneNumber = phoneNumber;
         this.email = email;
+        this.emailVerified =  emailVerified;
         this.passwordHash = passwordHash;
         this.provider = provider;
         this.createdAt = Instant.now();

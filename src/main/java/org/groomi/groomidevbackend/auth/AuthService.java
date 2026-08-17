@@ -13,6 +13,7 @@ import org.groomi.groomidevbackend.auth.email_service.EmailService;
 import org.groomi.groomidevbackend.auth.exception_handlers.login.InvalidCredentialsException;
 import org.groomi.groomidevbackend.auth.exception_handlers.register.AccountAlreadyExistsException;
 import org.groomi.groomidevbackend.auth.token_generator.JwtService;
+import org.groomi.groomidevbackend.auth.token_generator.token_types.TokenType;
 import org.groomi.groomidevbackend.user.UserProfile;
 import org.groomi.groomidevbackend.user.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -43,6 +44,7 @@ public class AuthService {
                 request.getLastName(),
                 request.getPhoneNumber(),
                 request.getEmail(),
+                false,
                 passwordEncoder.encode(request.getPassword()),
                 AuthProvider.LOCAL
         );
@@ -64,7 +66,7 @@ public class AuthService {
         if (!valid) {
             throw new InvalidCredentialsException(request.getEmail(), request.getPassword());
         }
-        String token =  jwtService.generateToken(user);
+        String token =  jwtService.generateToken(user, TokenType.SESSION_LOGGED_IN);
         return new LoginResponse(
                 user.getId(),
                 user.getEmail(),
@@ -75,7 +77,7 @@ public class AuthService {
 
     public SendVerificationLinkResponse sendVerificationLinkToUsersEmail(SendVerificationLinkToUsersEmail request, EmailService emailService){
         UserProfile user =  userRepository.findByEmail(request.getEmail()).orElseThrow();
-        String token = jwtService.generateToken(user);
+        String token = jwtService.generateToken(user, TokenType.EMAIL_VERIFICATION);
         try{
             emailService.sendEmail(
                     user.getEmail(),

@@ -12,7 +12,8 @@ public class TestUser {
                 "Smith",
                 "777-777-7777",
                 "jimmie@example.com",
-                "hashed-password",
+                false,
+                "test-password",
                 AuthProvider.LOCAL
         );
     }
