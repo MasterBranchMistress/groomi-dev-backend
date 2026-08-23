@@ -8,14 +8,12 @@ import org.groomi.groomidevbackend.auth.dto.logout.LogoutRequest;
 import org.groomi.groomidevbackend.auth.dto.logout.LogoutResponse;
 import org.groomi.groomidevbackend.auth.dto.register.RegisterRequest;
 import org.groomi.groomidevbackend.auth.dto.register.RegisterResponse;
+import org.groomi.groomidevbackend.auth.dto.verify_account.forgot_password.VerifyAccountResponse;
 import org.groomi.groomidevbackend.auth.email_service.EmailService;
 import org.groomi.groomidevbackend.shared_packages.api_response.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
@@ -58,6 +56,15 @@ public class AuthController {
             ){
         return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>("Email successfully sent.", authService.sendVerificationLinkToUsersEmail(request, emailService)));
     }
-
-//    @PostMapping("/verify-account")
+    @GetMapping("/verify-password-reset-link")
+    public ResponseEntity<ApiResponse<VerifyAccountResponse>> verifyEmail(
+            @RequestParam String token
+    ) {
+        return ResponseEntity.ok(
+                new ApiResponse<>(
+                        "Account verified successfully",
+                        authService.verifyAccount(token)
+                )
+        );
+    }
 }

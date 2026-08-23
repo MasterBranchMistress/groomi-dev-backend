@@ -1,5 +1,6 @@
 package org.groomi.groomidevbackend.auth.token_generator
 
+import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
 import org.groomi.groomidevbackend.auth.exception_handlers.login.InvalidCredentialsException
@@ -27,6 +28,22 @@ class JwtService {
             )
             .signWith(this.signingKey)
             .compact()
+    }
+    fun extractAllClaims(token: String): Claims {
+        return Jwts.parser()
+            .verifyWith(signingKey)
+            .build()
+            .parseSignedClaims(token)
+            .payload
+    }
+    fun isTokenType(token: String, expectedType: TokenType): Boolean {
+        val claims = extractAllClaims(token)
+        return claims["type"] == expectedType.name
+    }
+    fun extractUserId(token: String): UUID {
+        return UUID.fromString(
+            extractAllClaims(token).subject
+        )
     }
     private val signingKey: SecretKey
         get() = Keys.hmacShaKeyFor(secret?.toByteArray())

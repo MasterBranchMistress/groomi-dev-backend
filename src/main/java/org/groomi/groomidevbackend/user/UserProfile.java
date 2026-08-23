@@ -2,6 +2,7 @@ package org.groomi.groomidevbackend.user;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.Setter;
 import org.groomi.groomidevbackend.auth.auth_providers.AuthProvider;
 import software.amazon.awssdk.services.sesv2.endpoints.internal.Value;
 
@@ -9,6 +10,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 @Getter
+@Setter
 @Entity
 @Table(name = "users")
 public class UserProfile {

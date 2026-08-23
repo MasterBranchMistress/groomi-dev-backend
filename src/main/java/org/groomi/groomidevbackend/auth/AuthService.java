@@ -9,6 +9,7 @@ import org.groomi.groomidevbackend.auth.dto.logout.LogoutRequest;
 import org.groomi.groomidevbackend.auth.dto.logout.LogoutResponse;
 import org.groomi.groomidevbackend.auth.dto.register.RegisterRequest;
 import org.groomi.groomidevbackend.auth.dto.register.RegisterResponse;
+import org.groomi.groomidevbackend.auth.dto.verify_account.forgot_password.VerifyAccountResponse;
 import org.groomi.groomidevbackend.auth.email_service.EmailService;
 import org.groomi.groomidevbackend.auth.exception_handlers.login.InvalidCredentialsException;
 import org.groomi.groomidevbackend.auth.exception_handlers.register.AccountAlreadyExistsException;
@@ -18,6 +19,8 @@ import org.groomi.groomidevbackend.user.UserProfile;
 import org.groomi.groomidevbackend.user.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.UUID;
 
 @Service
 public class AuthService {
@@ -77,7 +80,7 @@ public class AuthService {
 
     public SendVerificationLinkResponse sendVerificationLinkToUsersEmail(SendVerificationLinkToUsersEmail request, EmailService emailService){
         UserProfile user =  userRepository.findByEmail(request.getEmail()).orElseThrow();
-        String token = jwtService.generateToken(user, TokenType.EMAIL_VERIFICATION);
+        String token = jwtService.generateToken(user, TokenType.PASSWORD_RESET);
         try{
             emailService.sendEmail(
                     user.getEmail(),
@@ -93,5 +96,21 @@ public class AuthService {
     public LogoutResponse logout(LogoutRequest request){
         //TODO: invalidate token
         return new LogoutResponse("User Logged out");
+    }
+
+    public VerifyAccountResponse verifyAccount(String token) {
+        if (!jwtService.isTokenType(token, TokenType.PASSWORD_RESET)) {
+            throw new IllegalArgumentException("Invalid password reset token");
+        }
+        UUID userId = jwtService.extractUserId(token);
+        UserProfile user = userRepository.findById(userId)
+                .orElseThrow(() ->
+                        new IllegalArgumentException("User not found")
+                );
+        if(!user.getEmailVerified()){
+            return new VerifyAccountResponse("Account has not been verified.", false);
+        }
+        userRepository.save(user);
+        return new VerifyAccountResponse("Account verified successfully. Reset Password permitted.", true);
     }
 }
