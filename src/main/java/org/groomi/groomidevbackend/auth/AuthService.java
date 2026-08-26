@@ -82,10 +82,12 @@ public class AuthService {
         UserProfile user =  userRepository.findByEmail(request.getEmail()).orElseThrow();
         String token = jwtService.generateToken(user, TokenType.PASSWORD_RESET);
         try{
-            emailService.sendEmail(
+
+            assert token != null;
+            emailService.sendPasswordResetEmail(
                     user.getEmail(),
-                    "Reset Your Password",
-                    "Email was successful - REMOVE THIS TOKEN OUT OF DEV " + token
+                    user.getFirstName(),
+                    token
             );
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
