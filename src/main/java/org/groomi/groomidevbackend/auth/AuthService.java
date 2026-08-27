@@ -87,7 +87,7 @@ public class AuthService {
             emailService.sendPasswordResetEmail(
                     user.getEmail(),
                     user.getFirstName(),
-                    token
+                    "groomr://reset-password?token="+token
             );
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
