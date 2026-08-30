@@ -1,6 +1,8 @@
 package org.groomi.groomidevbackend.auth;
 
 import jakarta.validation.Valid;
+import org.groomi.groomidevbackend.auth.dto.change_password.ChangePasswordRequest;
+import org.groomi.groomidevbackend.auth.dto.change_password.ChangePasswordResponse;
 import org.groomi.groomidevbackend.auth.dto.forgot_password.*;
 import org.groomi.groomidevbackend.auth.dto.login.LoginRequest;
 import org.groomi.groomidevbackend.auth.dto.login.LoginResponse;
@@ -55,6 +57,12 @@ public class AuthController {
             @Valid @RequestBody SendVerificationLinkToUsersEmail request
             ){
         return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>("Email successfully sent.", authService.sendVerificationLinkToUsersEmail(request, emailService)));
+    }
+    @PostMapping("/change-password")
+    public ResponseEntity<ApiResponse<ChangePasswordResponse>> resetUserPassword(
+            @Valid @RequestBody ChangePasswordRequest request
+            ){
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>("password changed successfully", authService.changePassword(request)));
     }
     @GetMapping("/verify-password-reset-link")
     public ResponseEntity<ApiResponse<VerifyAccountResponse>> verifyEmail(

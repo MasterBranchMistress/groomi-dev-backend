@@ -1,0 +1,39 @@
+package org.groomi.groomidevbackend.boilerplate_code.controller;
+
+package org.groomi.groomidevbackend.{domain};
+
+import jakarta.validation.Valid;
+import org.groomi.groomidevbackend.{domain}.dto.{feature}.{Feature}Request;
+import org.groomi.groomidevbackend.{domain}.dto.{feature}.{Feature}Response;
+import org.groomi.groomidevbackend.common.ApiResponse;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/{domain}")
+public class {Domain}Controller {
+
+    private final {Domain}Service {domain}Service;
+
+    public {Domain}Controller({Domain}Service {domain}Service) {
+        this.{domain}Service = {domain}Service;
+    }
+
+    @PostMapping("/{endpoint}")
+    public ResponseEntity<ApiResponse<{Feature}Response>> {methodName}(
+    @Valid @RequestBody {Feature}Request request
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(new ApiResponse<>(
+                        "{success message}",
+                        {domain}Service.{serviceMethod}(request)
+                ));
+    }
+}
+
+This is where you should add all endpoints for this specific domain.
+There must be ONE controller for each domain. If you have multiple controllers,
+you're doing it wrong!!
+

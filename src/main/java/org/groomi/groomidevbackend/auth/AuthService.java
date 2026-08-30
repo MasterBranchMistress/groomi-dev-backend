@@ -1,6 +1,8 @@
 package org.groomi.groomidevbackend.auth;
 
 import org.groomi.groomidevbackend.auth.auth_providers.AuthProvider;
+import org.groomi.groomidevbackend.auth.dto.change_password.ChangePasswordRequest;
+import org.groomi.groomidevbackend.auth.dto.change_password.ChangePasswordResponse;
 import org.groomi.groomidevbackend.auth.dto.forgot_password.SendVerificationLinkToUsersEmail;
 import org.groomi.groomidevbackend.auth.dto.forgot_password.SendVerificationLinkResponse;
 import org.groomi.groomidevbackend.auth.dto.login.LoginRequest;
@@ -92,7 +94,7 @@ public class AuthService {
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
-        return new SendVerificationLinkResponse("Password reset email sent");
+        return new SendVerificationLinkResponse("Password reset email sent: " + token);
     }
 
     public LogoutResponse logout(LogoutRequest request){
@@ -114,5 +116,20 @@ public class AuthService {
         }
         userRepository.save(user);
         return new VerifyAccountResponse("Account verified successfully. Reset Password permitted.", true);
+    }
+
+    public ChangePasswordResponse changePassword(ChangePasswordRequest request){
+        var token =  request.getToken();
+        if(!jwtService.isTokenType(token, TokenType.PASSWORD_RESET)){
+            return new ChangePasswordResponse("Unable to reset password. Wrong Token Type.");
+        }
+        UUID userId =  jwtService.extractUserId(token);
+        UserProfile user =  userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("User not found"));
+        var newPassword =  request.getNewPassword();
+        var encodedPassword = passwordEncoder.encode(newPassword);
+        user.setPasswordHash(encodedPassword);
+        userRepository.save(user);
+        return new ChangePasswordResponse("Password changed successfully");
+
     }
 }

@@ -1,0 +1,19 @@
+package org.groomi.groomidevbackend.boilerplate_code.repository;
+//
+//public interface {Domain}Repository extends JpaRepository<{Entity}, UUID> {
+//
+//        Optional<{Entity}> findBy{Field}({FieldType} {field});
+//
+//        }
+//
+//Example
+//public interface UserRepository extends JpaRepository<UserProfile, UUID> {
+//
+//    boolean existsByEmail(String email);
+//
+//    Optional<UserProfile> findByEmail(String email);
+//
+//}
+//
+//Only add custom Repository methods when the feature actually requires them.
+
