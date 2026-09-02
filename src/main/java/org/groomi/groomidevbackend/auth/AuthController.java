@@ -17,6 +17,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
@@ -64,15 +68,18 @@ public class AuthController {
             ){
         return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>("password changed successfully", authService.changePassword(request)));
     }
-    @GetMapping("/verify-password-reset-link")
+
+    @GetMapping("/verify-reset-password-token")
     public ResponseEntity<ApiResponse<VerifyAccountResponse>> verifyEmail(
             @RequestParam String token
     ) {
-        return ResponseEntity.ok(
-                new ApiResponse<>(
-                        "Account verified successfully",
-                        authService.verifyAccount(token)
-                )
+        URI redirectUri = URI.create(
+                "groomr://reset-password?token=" + URLEncoder.encode(token, StandardCharsets.UTF_8)
         );
+
+        return ResponseEntity
+                .status(HttpStatus.FOUND)
+                .location(redirectUri)
+                .build();
     }
 }

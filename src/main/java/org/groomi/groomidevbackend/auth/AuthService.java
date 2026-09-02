@@ -89,7 +89,7 @@ public class AuthService {
             emailService.sendPasswordResetEmail(
                     user.getEmail(),
                     user.getFirstName(),
-                    "groomr://reset-password?token="+token
+                    "http://172.16.224.124:8080/auth/verify-reset-password-token?token=" + token
             );
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
