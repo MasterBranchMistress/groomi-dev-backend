@@ -74,8 +74,10 @@ public class AuthController {
             @RequestParam String token
     ) {
         URI redirectUri = URI.create(
-                "groomr://reset-password?token=" + URLEncoder.encode(token, StandardCharsets.UTF_8)
+                "groomr://reset-password?token=" + URLEncoder.encode(token, StandardCharsets.UTF_16)
         );
+
+        System.out.println("Redirecting to: " + redirectUri);
 
         return ResponseEntity
                 .status(HttpStatus.FOUND)
