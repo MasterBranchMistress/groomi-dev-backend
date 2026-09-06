@@ -14,12 +14,12 @@ import org.groomi.groomidevbackend.auth.dto.verify_account.forgot_password.Verif
 import org.groomi.groomidevbackend.auth.email_service.EmailService;
 import org.groomi.groomidevbackend.shared_packages.api_response.ApiResponse;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 
 @RestController
 @RequestMapping("/auth")
@@ -70,18 +70,30 @@ public class AuthController {
     }
 
     @GetMapping("/verify-reset-password-token")
-    public ResponseEntity<ApiResponse<VerifyAccountResponse>> verifyEmail(
+    public ResponseEntity<String> verifyResetPasswordToken(
             @RequestParam String token
     ) {
-        URI redirectUri = URI.create(
-                "groomr://reset-password?token=" + URLEncoder.encode(token, StandardCharsets.UTF_16)
-        );
+        String html = """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Open Groomi</title>
+            <script>
+                 window.location.href = "groomr://reset-password?token=%s";
+              </script>
+        </head>
+        <body>
+            <h2>Opening Groomi...</h2>
+            <p>If the app doesn't open, tap below.</p>
+            <a href="groomr://reset-password?token=%s">
+                Open Groomi
+            </a>
+        </body>
+        </html>
+        """.formatted(token, token);
 
-        System.out.println("Redirecting to: " + redirectUri);
-
-        return ResponseEntity
-                .status(HttpStatus.FOUND)
-                .location(redirectUri)
-                .build();
+        return ResponseEntity.ok()
+                .contentType(MediaType.TEXT_HTML)
+                .body(html);
     }
 }
