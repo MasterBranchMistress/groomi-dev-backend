@@ -89,7 +89,7 @@ public class AuthService {
             emailService.sendPasswordResetEmail(
                     user.getEmail(),
                     user.getFirstName(),
-                    "http://172.16.224.124:8080/auth/verify-reset-password-token?token=" + token
+                    "http://localhost:8080/auth/verify-reset-password-token?token=" + token
             );
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
@@ -124,10 +124,15 @@ public class AuthService {
             return new ChangePasswordResponse("Unable to reset password. Wrong Token Type.");
         }
         UUID userId =  jwtService.extractUserId(token);
-        UserProfile user =  userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("User not found"));
+        UserProfile user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
         var newPassword =  request.getNewPassword();
+
         var encodedPassword = passwordEncoder.encode(newPassword);
+
         user.setPasswordHash(encodedPassword);
+
         userRepository.save(user);
         return new ChangePasswordResponse("Password changed successfully");
 
