@@ -1,5 +1,6 @@
 package org.groomi.groomidevbackend.auth.service;
 
+import jakarta.inject.Inject;
 import org.groomi.groomidevbackend.auth.AuthService;
 import org.groomi.groomidevbackend.auth.dto.change_password.ChangePasswordRequest;
 import org.groomi.groomidevbackend.auth.dto.change_password.ChangePasswordResponse;
@@ -19,10 +20,13 @@ import org.groomi.groomidevbackend.user.UserProfile;
 import org.groomi.groomidevbackend.user.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.DoNotMock;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
 import javax.swing.event.ChangeEvent;
 import java.util.Optional;
@@ -114,14 +118,28 @@ class AuthServiceTest {
     }
     @Test
     void whenResetPasswordIsSuccessful(){
-        ChangePasswordRequest request = ResetPasswordRequest.isValidResetPasswordRequest(jwtService);
-        when(passwordEncoder.encode(request.getNewPassword())).thenReturn("hashed-password");
-        when(userRepository.save(any(UserProfile.class)))
-                .thenReturn(TestUser.isValidUser());
-        ChangePasswordResponse response =  authService.changePassword(request);
+        ChangePasswordRequest request =
+                ResetPasswordRequest.isValidResetPasswordRequest(jwtService);
+        UserProfile user = TestUser.isValidUser();
+
+        when(jwtService.isTokenType(
+                request.getToken(), TokenType.PASSWORD_RESET
+        )).thenReturn(true);
+        when(jwtService.extractUserId(request.getToken()))
+                .thenReturn(user.getId());
+        when(userRepository.findById(user.getId()))
+                .thenReturn(Optional.of(user));
+        when(passwordEncoder.encode(request.getNewPassword()))
+                .thenReturn("hashed-password");
+        ChangePasswordResponse response =
+                authService.changePassword(request);
+        ArgumentCaptor<UserProfile> userCaptor =
+                ArgumentCaptor.forClass(UserProfile.class);
+        verify(userRepository).save(userCaptor.capture());
+        UserProfile savedUser = userCaptor.getValue();
+        assertEquals("hashed-password", savedUser.getPasswordHash());
         assertEquals("Password changed successfully", response.message());
         verify(passwordEncoder).encode(request.getNewPassword());
-        verify(userRepository).save(any(UserProfile.class));
     }
 
     @Test
