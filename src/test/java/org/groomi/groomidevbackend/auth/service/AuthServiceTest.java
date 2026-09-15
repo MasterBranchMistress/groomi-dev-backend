@@ -1,12 +1,15 @@
 package org.groomi.groomidevbackend.auth.service;
 
 import org.groomi.groomidevbackend.auth.AuthService;
+import org.groomi.groomidevbackend.auth.dto.change_password.ChangePasswordRequest;
+import org.groomi.groomidevbackend.auth.dto.change_password.ChangePasswordResponse;
 import org.groomi.groomidevbackend.auth.dto.login.LoginRequest;
 import org.groomi.groomidevbackend.auth.dto.login.LoginResponse;
 import org.groomi.groomidevbackend.auth.dto.register.RegisterRequest;
 import org.groomi.groomidevbackend.auth.dto.register.RegisterResponse;
 import org.groomi.groomidevbackend.auth.exception_handlers.login.InvalidCredentialsException;
 import org.groomi.groomidevbackend.auth.exception_handlers.register.AccountAlreadyExistsException;
+import org.groomi.groomidevbackend.auth.fixtures.ResetPasswordRequest;
 import org.groomi.groomidevbackend.auth.fixtures.UserLoginRequest;
 import org.groomi.groomidevbackend.auth.fixtures.TestUser;
 import org.groomi.groomidevbackend.auth.fixtures.UserRegisterRequest;
@@ -21,6 +24,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import javax.swing.event.ChangeEvent;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -107,5 +111,23 @@ class AuthServiceTest {
         );
         verify(userRepository, never())
                 .save(any(UserProfile.class));
+    }
+    @Test
+    void whenResetPasswordIsSuccessful(){
+        ChangePasswordRequest request = ResetPasswordRequest.isValidResetPasswordRequest(jwtService);
+        when(passwordEncoder.encode(request.getNewPassword())).thenReturn("hashed-password");
+        when(userRepository.save(any(UserProfile.class)))
+                .thenReturn(TestUser.isValidUser());
+        ChangePasswordResponse response =  authService.changePassword(request);
+        assertEquals("Password changed successfully", response.message());
+        verify(passwordEncoder).encode(request.getNewPassword());
+        verify(userRepository).save(any(UserProfile.class));
+    }
+
+    @Test
+    void whenPasswordResetTokenIsWrongType(){
+        ChangePasswordRequest request =  ResetPasswordRequest.invalidTokenType(jwtService);
+        ChangePasswordResponse response =  authService.changePassword(request);
+        assertEquals("Unable to reset password. Wrong Token Type.", response.message());
     }
 }

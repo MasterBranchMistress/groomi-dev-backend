@@ -3,12 +3,16 @@ package org.groomi.groomidevbackend.auth.controller;
 import org.groomi.groomidevbackend.auth.AuthController;
 import org.groomi.groomidevbackend.auth.AuthService;
 import org.groomi.groomidevbackend.auth.auth_providers.AuthProvider;
+import org.groomi.groomidevbackend.auth.dto.change_password.ChangePasswordRequest;
 import org.groomi.groomidevbackend.auth.dto.login.LoginRequest;
 import org.groomi.groomidevbackend.auth.dto.login.LoginResponse;
 import org.groomi.groomidevbackend.auth.dto.register.RegisterRequest;
 import org.groomi.groomidevbackend.auth.dto.register.RegisterResponse;
+import org.groomi.groomidevbackend.auth.email_service.EmailService;
 import org.groomi.groomidevbackend.auth.exception_handlers.login.InvalidCredentialsException;
+import org.groomi.groomidevbackend.auth.fixtures.ResetPasswordRequest;
 import org.groomi.groomidevbackend.auth.fixtures.UserRegisterRequest;
+import org.groomi.groomidevbackend.auth.token_generator.JwtService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +35,10 @@ class AuthControllerTest {
     private MockMvc mockMvc;
     @MockitoBean
     private AuthService authService;
+    @MockitoBean
+    private JwtService jwtService;
+    @MockitoBean
+    private EmailService emailService;
     @Test
     void loginReturnsOkWhenCredentialsAreValid() throws Exception {
         LoginResponse response = new LoginResponse(
@@ -95,6 +103,47 @@ class AuthControllerTest {
                         "authProvider":"%s"
                     }
                     """.formatted(firstName, lastName,email,phoneNumber, password, AuthProvider.LOCAL)));
+    }
+    @Test
+    void resetPasswordReturnsOkWhenRequestIsValid() throws Exception {
+        ChangePasswordRequest request =
+                ResetPasswordRequest.isValidResetPasswordRequest(jwtService);
+
+        Mockito.when(authService.changePassword(any(ChangePasswordRequest.class)))
+                .thenReturn(any());
+
+        performResetPassword(
+                request.getToken(),
+                request.getNewPassword()
+        ).andExpect(status().isOk());
+
+        verify(authService)
+                .changePassword(any(ChangePasswordRequest.class));
+    }
+
+    @Test
+    void resetPasswordReturnsBadRequestWhenRequestIsInvalid() throws Exception {
+        performResetPassword(
+                "",
+                ""
+        ).andExpect(status().isBadRequest());
+
+        verify(authService, never())
+                .changePassword(any(ChangePasswordRequest.class));
+    }
+
+    private ResultActions performResetPassword(
+            String token,
+            String newPassword
+    ) throws Exception {
+        return mockMvc.perform(post("/auth/change-password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                {
+                    "token": "%s",
+                    "newPassword": "%s"
+                }
+                """.formatted(token, newPassword)));
     }
 }
 
