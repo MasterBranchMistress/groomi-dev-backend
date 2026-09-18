@@ -11,6 +11,7 @@ import org.groomi.groomidevbackend.auth.dto.logout.LogoutResponse;
 import org.groomi.groomidevbackend.auth.dto.register.RegisterRequest;
 import org.groomi.groomidevbackend.auth.dto.register.RegisterResponse;
 import org.groomi.groomidevbackend.auth.dto.verify_account.forgot_password.VerifyAccountResponse;
+import org.groomi.groomidevbackend.auth.dto.verify_account.register.VerifyNewAccountRequest;
 import org.groomi.groomidevbackend.auth.email_service.EmailService;
 import org.groomi.groomidevbackend.shared_packages.api_response.ApiResponse;
 import org.springframework.http.HttpStatus;
@@ -38,7 +39,7 @@ public class AuthController {
     ) {
         return ResponseEntity.status(HttpStatus.CREATED).body(
                         new ApiResponse<>("User registered successfully",
-                                authService.register(request)
+                                authService.register(request, emailService)
                         )
                 );
     }
@@ -67,6 +68,34 @@ public class AuthController {
             @Valid @RequestBody ChangePasswordRequest request
             ){
         return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>("password changed successfully", authService.changePassword(request)));
+    }
+
+    @GetMapping("/verify-new-account")
+    public ResponseEntity<String> verifyNewAccount(
+            @RequestParam String token
+    ){
+        String html = """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Open Groomi</title>
+            <script>
+                 window.location.href = "groomr://verify-new-account?token=%s";
+              </script>
+        </head>
+        <body>
+            <h2>Opening Groomi...</h2>
+            <p>If the app doesn't open, tap below.</p>
+            <a href="groomr://verify-new-account?token=%s">
+                Open Groomi
+            </a>
+        </body>
+        </html>
+        """.formatted(token, token);
+        authService.verifyAccount(token);
+        return ResponseEntity.ok()
+                .contentType(MediaType.TEXT_HTML)
+                .body(html);
     }
 
     @GetMapping("/verify-reset-password-token")

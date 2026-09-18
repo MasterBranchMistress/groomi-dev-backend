@@ -12,6 +12,7 @@ import org.groomi.groomidevbackend.auth.dto.logout.LogoutResponse;
 import org.groomi.groomidevbackend.auth.dto.register.RegisterRequest;
 import org.groomi.groomidevbackend.auth.dto.register.RegisterResponse;
 import org.groomi.groomidevbackend.auth.dto.verify_account.forgot_password.VerifyAccountResponse;
+import org.groomi.groomidevbackend.auth.dto.verify_account.register.VerifyNewAccountRequest;
 import org.groomi.groomidevbackend.auth.email_service.EmailService;
 import org.groomi.groomidevbackend.auth.exception_handlers.login.InvalidCredentialsException;
 import org.groomi.groomidevbackend.auth.exception_handlers.register.AccountAlreadyExistsException;
@@ -40,7 +41,7 @@ public class AuthService {
         this.jwtService = jwtService;
     }
 
-    public RegisterResponse register(RegisterRequest request) {
+    public RegisterResponse register(RegisterRequest request, EmailService emailService) {
         if(userRepository.existsByEmail(request.getEmail())){
             throw new AccountAlreadyExistsException(request.getEmail());
         }
@@ -53,11 +54,14 @@ public class AuthService {
                 passwordEncoder.encode(request.getPassword()),
                 AuthProvider.LOCAL
         );
-
         UserProfile savedUser = userRepository.save(user);
+       String token =  jwtService.generateToken(savedUser, TokenType.VERIFY_ACCOUNT);
+       assert token != null;
+       emailService.sendRegisterNewAccountEmail(savedUser.getEmail(), savedUser.getFirstName(), token);
         return new RegisterResponse(
                 savedUser.getId(),
-                request.getEmail()
+                request.getEmail(),
+                token
         );
     }
 
@@ -94,6 +98,7 @@ public class AuthService {
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
+        //TODO: remove token from this
         return new SendVerificationLinkResponse("Password reset email sent: " + token);
     }
 
@@ -102,8 +107,8 @@ public class AuthService {
         return new LogoutResponse("User Logged out");
     }
 
-    public VerifyAccountResponse verifyAccount(String token) {
-        if (!jwtService.isTokenType(token, TokenType.PASSWORD_RESET)) {
+    public void verifyAccount(String token) {
+        if (!jwtService.isTokenType(token, TokenType.VERIFY_ACCOUNT)) {
             throw new IllegalArgumentException("Invalid password reset token");
         }
         UUID userId = jwtService.extractUserId(token);
@@ -111,11 +116,9 @@ public class AuthService {
                 .orElseThrow(() ->
                         new IllegalArgumentException("User not found")
                 );
-        if(!user.getEmailVerified()){
-            return new VerifyAccountResponse("Account has not been verified.", false);
-        }
+        user.setEmailVerified(true);
         userRepository.save(user);
-        return new VerifyAccountResponse("Account verified successfully. Reset Password permitted.", true);
+        new VerifyAccountResponse("Account verified successfully.", user.getEmailVerified());
     }
 
     public ChangePasswordResponse changePassword(ChangePasswordRequest request){

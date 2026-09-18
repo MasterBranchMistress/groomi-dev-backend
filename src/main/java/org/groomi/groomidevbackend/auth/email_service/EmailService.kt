@@ -83,4 +83,25 @@ class EmailService(
             true
         )
     }
+    fun sendRegisterNewAccountEmail(
+        recipient: String,
+        firstName: String,
+        resetLink: String
+    ) {
+        val htmlBody = renderEmailTemplate(
+            "email_templates/new-account",
+            mapOf(
+                "firstName" to firstName,
+                "resetLink" to resetLink
+            ),
+            templateEngine
+        )
+
+        sendEmail(
+            recipient,
+            "Groomr - Verify Your Email",
+            htmlBody,
+            true
+        )
+    }
 }
