@@ -10,17 +10,12 @@ import org.groomi.groomidevbackend.auth.dto.logout.LogoutRequest;
 import org.groomi.groomidevbackend.auth.dto.logout.LogoutResponse;
 import org.groomi.groomidevbackend.auth.dto.register.RegisterRequest;
 import org.groomi.groomidevbackend.auth.dto.register.RegisterResponse;
-import org.groomi.groomidevbackend.auth.dto.verify_account.forgot_password.VerifyAccountResponse;
-import org.groomi.groomidevbackend.auth.dto.verify_account.register.VerifyNewAccountRequest;
 import org.groomi.groomidevbackend.auth.email_service.EmailService;
 import org.groomi.groomidevbackend.shared_packages.api_response.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.util.UriComponentsBuilder;
-
-import java.net.URI;
 
 @RestController
 @RequestMapping("/auth")

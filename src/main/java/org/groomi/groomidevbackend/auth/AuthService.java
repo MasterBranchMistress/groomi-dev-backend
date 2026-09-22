@@ -15,6 +15,7 @@ import org.groomi.groomidevbackend.auth.dto.verify_account.forgot_password.Verif
 import org.groomi.groomidevbackend.auth.dto.verify_account.register.VerifyNewAccountRequest;
 import org.groomi.groomidevbackend.auth.email_service.EmailService;
 import org.groomi.groomidevbackend.auth.exception_handlers.login.InvalidCredentialsException;
+import org.groomi.groomidevbackend.auth.exception_handlers.login.UnverifiedAccountException;
 import org.groomi.groomidevbackend.auth.exception_handlers.register.AccountAlreadyExistsException;
 import org.groomi.groomidevbackend.auth.token_generator.JwtService;
 import org.groomi.groomidevbackend.auth.token_generator.token_types.TokenType;
@@ -72,8 +73,12 @@ public class AuthService {
                         new InvalidCredentialsException(request.getEmail(), request.getPassword())
                 );
         boolean valid =  passwordEncoder.matches(request.getPassword(), user.getPasswordHash());
+        boolean verified =  user.getEmailVerified().equals(true);
         if (!valid) {
             throw new InvalidCredentialsException(request.getEmail(), request.getPassword());
+        }
+        if(!verified){
+            throw new UnverifiedAccountException(user.getEmailVerified());
         }
         String token =  jwtService.generateToken(user, TokenType.SESSION_LOGGED_IN);
         return new LoginResponse(
