@@ -58,7 +58,11 @@ public class AuthService {
         UserProfile savedUser = userRepository.save(user);
        String token =  jwtService.generateToken(savedUser, TokenType.VERIFY_ACCOUNT);
        assert token != null;
-       emailService.sendRegisterNewAccountEmail(savedUser.getEmail(), savedUser.getFirstName(), token);
+       emailService.sendRegisterNewAccountEmail(
+               savedUser.getEmail(),
+               savedUser.getFirstName(),
+               "http://localhost:8080/auth/verify-new-account?token="
+               +token);
         return new RegisterResponse(
                 savedUser.getId(),
                 request.getEmail(),
