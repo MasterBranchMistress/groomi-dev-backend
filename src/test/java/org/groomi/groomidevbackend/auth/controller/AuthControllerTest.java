@@ -10,6 +10,7 @@ import org.groomi.groomidevbackend.auth.dto.register.RegisterRequest;
 import org.groomi.groomidevbackend.auth.dto.register.RegisterResponse;
 import org.groomi.groomidevbackend.auth.email_service.EmailService;
 import org.groomi.groomidevbackend.auth.exception_handlers.login.InvalidCredentialsException;
+import org.groomi.groomidevbackend.auth.exception_handlers.login.UnverifiedAccountException;
 import org.groomi.groomidevbackend.auth.fixtures.ResetPasswordRequest;
 import org.groomi.groomidevbackend.auth.fixtures.UserRegisterRequest;
 import org.groomi.groomidevbackend.auth.token_generator.JwtService;
@@ -65,13 +66,13 @@ class AuthControllerTest {
     void registerReturns201WhenRegistrationSucceeds() throws Exception{
         RegisterRequest request = UserRegisterRequest.isValidRegisterRequest();
         RegisterResponse response =  new RegisterResponse(UUID.randomUUID(), request.getEmail());
-        Mockito.when(authService.register(any(RegisterRequest.class))).thenReturn(response);
+        Mockito.when(authService.register(any(RegisterRequest.class), any(EmailService.class))).thenReturn(response);
         performRegister(request.getFirstName(), request.getLastName(), request.getEmail(), request.getPhoneNumber(), request.getPassword()).andExpect(status().isCreated());
     }
     @Test
     void registerReturnsBadRequestWhenRequestIsInvalid() throws Exception {
         performRegister("", "Smith", "not-an-email", "777-777-7777", "").andExpect(status().isBadRequest());
-        verify(authService, never()).register(any(RegisterRequest.class));
+        verify(authService, never()).register(any(RegisterRequest.class), any(EmailService.class));
     }
     private ResultActions performLogin(
             String email,

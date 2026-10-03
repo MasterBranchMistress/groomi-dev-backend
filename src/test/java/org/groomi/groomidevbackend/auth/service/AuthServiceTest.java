@@ -8,6 +8,7 @@ import org.groomi.groomidevbackend.auth.dto.login.LoginRequest;
 import org.groomi.groomidevbackend.auth.dto.login.LoginResponse;
 import org.groomi.groomidevbackend.auth.dto.register.RegisterRequest;
 import org.groomi.groomidevbackend.auth.dto.register.RegisterResponse;
+import org.groomi.groomidevbackend.auth.email_service.EmailService;
 import org.groomi.groomidevbackend.auth.exception_handlers.login.InvalidCredentialsException;
 import org.groomi.groomidevbackend.auth.exception_handlers.register.AccountAlreadyExistsException;
 import org.groomi.groomidevbackend.auth.fixtures.ResetPasswordRequest;
@@ -46,6 +47,8 @@ class AuthServiceTest {
     private JwtService jwtService;
     @InjectMocks
     private AuthService authService;
+    @Mock
+    private EmailService emailService;
 
     @Test
     void whenLoginRequestIsValid(){
@@ -97,7 +100,11 @@ class AuthServiceTest {
                 .thenReturn("hashed-password");
         when(userRepository.save(any(UserProfile.class)))
                 .thenReturn(TestUser.isValidUser());
-        RegisterResponse response = authService.register(request);
+        when(jwtService.generateToken(any(UserProfile.class), any(TokenType.class)))
+                .thenReturn("test-token");
+        RegisterResponse response = authService.register(request, emailService);
+        System.out.println("Request email: " + request.getEmail());
+        System.out.println("Response email: " + response.email());
         assertEquals(request.getEmail(), response.email());
         verify(passwordEncoder)
                 .encode(request.getPassword());
@@ -111,7 +118,7 @@ class AuthServiceTest {
                 .thenReturn(true);
         assertThrows(
                 AccountAlreadyExistsException.class,
-                () -> authService.register(request)
+                () -> authService.register(request, emailService)
         );
         verify(userRepository, never())
                 .save(any(UserProfile.class));

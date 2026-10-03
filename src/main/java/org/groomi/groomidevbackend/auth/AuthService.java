@@ -65,8 +65,7 @@ public class AuthService {
                +token);
         return new RegisterResponse(
                 savedUser.getId(),
-                request.getEmail(),
-                token
+                request.getEmail()
         );
     }
 

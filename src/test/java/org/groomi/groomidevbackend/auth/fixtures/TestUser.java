@@ -11,9 +11,9 @@ public class TestUser {
                 "Jimmie",
                 "Smith",
                 "777-777-7777",
-                "jimmie@example.com",
-                false,
-                "test-password",
+                "masterbranchmistress@gmail.com",
+                true,
+                "Chicken1994",
                 AuthProvider.LOCAL
         );
     }
