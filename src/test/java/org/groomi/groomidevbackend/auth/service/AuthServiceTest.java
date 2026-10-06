@@ -1,6 +1,5 @@
 package org.groomi.groomidevbackend.auth.service;
 
-import jakarta.inject.Inject;
 import org.groomi.groomidevbackend.auth.AuthService;
 import org.groomi.groomidevbackend.auth.dto.change_password.ChangePasswordRequest;
 import org.groomi.groomidevbackend.auth.dto.change_password.ChangePasswordResponse;
@@ -17,19 +16,16 @@ import org.groomi.groomidevbackend.auth.fixtures.TestUser;
 import org.groomi.groomidevbackend.auth.fixtures.UserRegisterRequest;
 import org.groomi.groomidevbackend.auth.token_generator.JwtService;
 import org.groomi.groomidevbackend.auth.token_generator.token_types.TokenType;
-import org.groomi.groomidevbackend.user.UserProfile;
-import org.groomi.groomidevbackend.user.UserRepository;
+import org.groomi.groomidevbackend.dashboard.UserDashboard;
+import org.groomi.groomidevbackend.dashboard.UserDashboardRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.DoNotMock;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
 
-import javax.swing.event.ChangeEvent;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -40,7 +36,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class AuthServiceTest {
     @Mock
-    private UserRepository userRepository;
+    private UserDashboardRepository userDashboardRepository;
     @Mock
     private PasswordEncoder passwordEncoder;
     @Mock
@@ -53,8 +49,8 @@ class AuthServiceTest {
     @Test
     void whenLoginRequestIsValid(){
         LoginRequest request =  UserLoginRequest.isValidLoginRequest();
-        UserProfile user =  TestUser.isValidUser();
-        when(userRepository.findByEmail(request.getEmail())).thenReturn(Optional.of(user));
+        UserDashboard user =  TestUser.hasAllDashboardInformation();
+        when(userDashboardRepository.findByEmail(request.getEmail())).thenReturn(Optional.of(user));
         when(passwordEncoder.matches(request.getPassword(), user.getPasswordHash())).thenReturn(true);
         when(jwtService.generateToken(user, TokenType.SESSION_LOGGED_IN)).thenReturn("fake-jwt-token");
         LoginResponse response = authService.login(request);
@@ -66,7 +62,7 @@ class AuthServiceTest {
     @Test
     void whenLoginRequestHasInvalidEmail(){
         LoginRequest request = UserLoginRequest.hasInvalidEmail();
-        when(userRepository.findByEmail(request.getEmail()))
+        when(userDashboardRepository.findByEmail(request.getEmail()))
                 .thenReturn(Optional.empty());
         assertThrows(
                 InvalidCredentialsException.class,
@@ -76,10 +72,10 @@ class AuthServiceTest {
     @Test
     void whenLoginRequestHasInvalidPassword(){
 
-        UserProfile user = TestUser.isValidUser();
+        UserDashboard user = TestUser.hasAllDashboardInformation();
         LoginRequest request = UserLoginRequest.hasInvalidPassword();
 
-        when(userRepository.findByEmail(request.getEmail()))
+        when(userDashboardRepository.findByEmail(request.getEmail()))
                 .thenReturn(Optional.of(user));
 
         when(passwordEncoder.matches(
@@ -98,9 +94,9 @@ class AuthServiceTest {
         RegisterRequest request = UserRegisterRequest.isValidRegisterRequest();
         when(passwordEncoder.encode(request.getPassword()))
                 .thenReturn("hashed-password");
-        when(userRepository.save(any(UserProfile.class)))
-                .thenReturn(TestUser.isValidUser());
-        when(jwtService.generateToken(any(UserProfile.class), any(TokenType.class)))
+        when(userDashboardRepository.save(any(UserDashboard.class)))
+                .thenReturn(TestUser.hasAllDashboardInformation());
+        when(jwtService.generateToken(any(UserDashboard.class), any(TokenType.class)))
                 .thenReturn("test-token");
         RegisterResponse response = authService.register(request, emailService);
         System.out.println("Request email: " + request.getEmail());
@@ -108,42 +104,42 @@ class AuthServiceTest {
         assertEquals(request.getEmail(), response.email());
         verify(passwordEncoder)
                 .encode(request.getPassword());
-        verify(userRepository)
-                .save(any(UserProfile.class));
+        verify(userDashboardRepository)
+                .save(any(UserDashboard.class));
     }
     @Test
     void whenAccountAlreadyExistsWhenRegistering() {
         RegisterRequest request = UserRegisterRequest.isExistingUserAlready();
-        when(userRepository.existsByEmail(request.getEmail()))
+        when(userDashboardRepository.existsByEmail(request.getEmail()))
                 .thenReturn(true);
         assertThrows(
                 AccountAlreadyExistsException.class,
                 () -> authService.register(request, emailService)
         );
-        verify(userRepository, never())
-                .save(any(UserProfile.class));
+        verify(userDashboardRepository, never())
+                .save(any(UserDashboard.class));
     }
     @Test
     void whenResetPasswordIsSuccessful(){
         ChangePasswordRequest request =
                 ResetPasswordRequest.isValidResetPasswordRequest(jwtService);
-        UserProfile user = TestUser.isValidUser();
+        UserDashboard user = TestUser.hasAllDashboardInformation();
 
         when(jwtService.isTokenType(
                 request.getToken(), TokenType.PASSWORD_RESET
         )).thenReturn(true);
         when(jwtService.extractUserId(request.getToken()))
                 .thenReturn(user.getId());
-        when(userRepository.findById(user.getId()))
+        when(userDashboardRepository.findById(user.getId()))
                 .thenReturn(Optional.of(user));
         when(passwordEncoder.encode(request.getNewPassword()))
                 .thenReturn("hashed-password");
         ChangePasswordResponse response =
                 authService.changePassword(request);
-        ArgumentCaptor<UserProfile> userCaptor =
-                ArgumentCaptor.forClass(UserProfile.class);
-        verify(userRepository).save(userCaptor.capture());
-        UserProfile savedUser = userCaptor.getValue();
+        ArgumentCaptor<UserDashboard> userCaptor =
+                ArgumentCaptor.forClass(UserDashboard.class);
+        verify(userDashboardRepository).save(userCaptor.capture());
+        UserDashboard savedUser = userCaptor.getValue();
         assertEquals("hashed-password", savedUser.getPasswordHash());
         assertEquals("Password changed successfully", response.message());
         verify(passwordEncoder).encode(request.getNewPassword());

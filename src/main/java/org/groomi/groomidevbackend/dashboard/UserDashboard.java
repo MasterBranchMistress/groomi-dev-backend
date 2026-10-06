@@ -1,10 +1,9 @@
-package org.groomi.groomidevbackend.user;
+package org.groomi.groomidevbackend.dashboard;
 
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.groomi.groomidevbackend.auth.auth_providers.AuthProvider;
-import software.amazon.awssdk.services.sesv2.endpoints.internal.Value;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -13,7 +12,7 @@ import java.util.UUID;
 @Setter
 @Entity
 @Table(name = "users")
-public class UserProfile {
+public class UserDashboard {
 
     @Id
     @GeneratedValue
@@ -55,24 +54,15 @@ public class UserProfile {
 
 
 
-    protected  UserProfile() {}
-    public UserProfile(
+    protected UserDashboard() {}
+    public UserDashboard(
             String firstName,
             String lastName,
-            String phoneNumber,
-            String email,
-            Boolean emailVerified,
-            String passwordHash,
-            AuthProvider provider
+            String email
     ) {
         this.firstName = firstName;
         this.lastName = lastName;
-        this.phoneNumber = phoneNumber;
         this.email = email;
-        this.emailVerified =  emailVerified;
-        this.passwordHash = passwordHash;
-        this.provider = provider;
-        this.createdAt = Instant.now();
     }
 
 
@@ -87,7 +77,4 @@ public class UserProfile {
         this.createdAt = Instant.now();
     }
 
-
-
-    // getters/setters
 }

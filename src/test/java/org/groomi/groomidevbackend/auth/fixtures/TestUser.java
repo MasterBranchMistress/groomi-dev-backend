@@ -1,20 +1,14 @@
 package org.groomi.groomidevbackend.auth.fixtures;
 
 import org.groomi.groomidevbackend.auth.auth_providers.AuthProvider;
-import org.groomi.groomidevbackend.user.UserProfile;
-
-import java.util.UUID;
+import org.groomi.groomidevbackend.dashboard.UserDashboard;
 
 public class TestUser {
-    public static UserProfile isValidUser(){
-        return new UserProfile(
+    public static UserDashboard hasAllDashboardInformation(){
+        return new UserDashboard(
                 "Jimmie",
                 "Smith",
-                "777-777-7777",
-                "masterbranchmistress@gmail.com",
-                true,
-                "Chicken1994",
-                AuthProvider.LOCAL
+                "masterbranchmistress@gmail.com"
         );
     }
 }

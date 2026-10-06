@@ -12,15 +12,14 @@ import org.groomi.groomidevbackend.auth.dto.logout.LogoutResponse;
 import org.groomi.groomidevbackend.auth.dto.register.RegisterRequest;
 import org.groomi.groomidevbackend.auth.dto.register.RegisterResponse;
 import org.groomi.groomidevbackend.auth.dto.verify_account.forgot_password.VerifyAccountResponse;
-import org.groomi.groomidevbackend.auth.dto.verify_account.register.VerifyNewAccountRequest;
 import org.groomi.groomidevbackend.auth.email_service.EmailService;
 import org.groomi.groomidevbackend.auth.exception_handlers.login.InvalidCredentialsException;
 import org.groomi.groomidevbackend.auth.exception_handlers.login.UnverifiedAccountException;
 import org.groomi.groomidevbackend.auth.exception_handlers.register.AccountAlreadyExistsException;
 import org.groomi.groomidevbackend.auth.token_generator.JwtService;
 import org.groomi.groomidevbackend.auth.token_generator.token_types.TokenType;
-import org.groomi.groomidevbackend.user.UserProfile;
-import org.groomi.groomidevbackend.user.UserRepository;
+import org.groomi.groomidevbackend.dashboard.UserDashboard;
+import org.groomi.groomidevbackend.dashboard.UserDashboardRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -29,33 +28,30 @@ import java.util.UUID;
 @Service
 public class AuthService {
 
-    private final UserRepository userRepository;
+    private final UserDashboardRepository userDashboardRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     public AuthService(
-            UserRepository userRepository,
+            UserDashboardRepository userDashboardRepository,
             PasswordEncoder passwordEncoder,
             JwtService jwtService
     ) {
-        this.userRepository = userRepository;
+        this.userDashboardRepository = userDashboardRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
     }
 
     public RegisterResponse register(RegisterRequest request, EmailService emailService) {
-        if(userRepository.existsByEmail(request.getEmail())){
+        if(userDashboardRepository.existsByEmail(request.getEmail())){
             throw new AccountAlreadyExistsException(request.getEmail());
         }
-        UserProfile user = new UserProfile(
+        UserDashboard user = new UserDashboard(
                 request.getFirstName(),
                 request.getLastName(),
-                request.getPhoneNumber(),
-                request.getEmail(),
-                false,
-                passwordEncoder.encode(request.getPassword()),
-                AuthProvider.LOCAL
+                request.getEmail()
+
         );
-        UserProfile savedUser = userRepository.save(user);
+        UserDashboard savedUser = userDashboardRepository.save(user);
        String token =  jwtService.generateToken(savedUser, TokenType.VERIFY_ACCOUNT);
        assert token != null;
        emailService.sendRegisterNewAccountEmail(
@@ -70,7 +66,7 @@ public class AuthService {
     }
 
     public LoginResponse login(LoginRequest request){
-        UserProfile user = userRepository
+        UserDashboard user = userDashboardRepository
                 .findByEmail(request.getEmail())
                 .orElseThrow(() ->
                         new InvalidCredentialsException(request.getEmail(), request.getPassword())
@@ -93,7 +89,7 @@ public class AuthService {
     }
 
     public SendVerificationLinkResponse sendVerificationLinkToUsersEmail(SendVerificationLinkToUsersEmail request, EmailService emailService){
-        UserProfile user =  userRepository.findByEmail(request.getEmail()).orElseThrow();
+        UserDashboard user =  userDashboardRepository.findByEmail(request.getEmail()).orElseThrow();
         String token = jwtService.generateToken(user, TokenType.PASSWORD_RESET);
         try{
 
@@ -120,12 +116,12 @@ public class AuthService {
             throw new IllegalArgumentException("Invalid password reset token");
         }
         UUID userId = jwtService.extractUserId(token);
-        UserProfile user = userRepository.findById(userId)
+        UserDashboard user = userDashboardRepository.findById(userId)
                 .orElseThrow(() ->
                         new IllegalArgumentException("User not found")
                 );
         user.setEmailVerified(true);
-        userRepository.save(user);
+        userDashboardRepository.save(user);
         new VerifyAccountResponse("Account verified successfully.", user.getEmailVerified());
     }
 
@@ -135,7 +131,7 @@ public class AuthService {
             return new ChangePasswordResponse("Unable to reset password. Wrong Token Type.");
         }
         UUID userId =  jwtService.extractUserId(token);
-        UserProfile user = userRepository.findById(userId)
+        UserDashboard user = userDashboardRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         var newPassword =  request.getNewPassword();
@@ -144,7 +140,7 @@ public class AuthService {
 
         user.setPasswordHash(encodedPassword);
 
-        userRepository.save(user);
+        userDashboardRepository.save(user);
         return new ChangePasswordResponse("Password changed successfully");
 
     }
