@@ -6,21 +6,23 @@ import org.groomi.groomidevbackend.dashboard.dto.load_user_dashboard.LoadUserDas
 import org.groomi.groomidevbackend.dashboard.exception_handlers.load_user_profile.AccountDoesNotExistException;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 public class UserDashboardService {
 
     private final UserDashboardRepository userDashboardRepository;
+    private final JwtService jwtService;
 
     public UserDashboardService(
-            UserDashboardRepository userDashboardRepository
+            UserDashboardRepository userDashboardRepository, JwtService jwtService
     ) {
         this.userDashboardRepository = userDashboardRepository;
+        this.jwtService = jwtService;
     }
-    public LoadUserDashboardResponse loadUserDashboard(JwtService jwtService, String token) {
-
-        var userToken =  jwtService.extractAllClaims(token);
-
-        UserDashboard userDashboardData = userDashboardRepository.findById(jwtService.extractUserId(userToken.getId()))
+    public LoadUserDashboardResponse loadUserDashboard(String token) {
+        UUID userId =  jwtService.extractUserId(token);
+        UserDashboard userDashboardData = userDashboardRepository.findById(userId)
                 .orElseThrow(AccountDoesNotExistException::new);
 
         return new LoadUserDashboardResponse(userDashboardData.getFirstName(), userDashboardData.getLastName(), userDashboardData.getEmail());

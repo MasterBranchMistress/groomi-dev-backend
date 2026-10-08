@@ -80,6 +80,7 @@ public class AuthService {
             throw new UnverifiedAccountException(user.getEmailVerified());
         }
         String token =  jwtService.generateToken(user, TokenType.SESSION_LOGGED_IN);
+
         return new LoginResponse(
                 user.getId(),
                 user.getEmail(),

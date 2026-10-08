@@ -1,6 +1,7 @@
 package org.groomi.groomidevbackend.auth.token_generator
 
 import io.jsonwebtoken.Claims
+import io.jsonwebtoken.Jws
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
 import org.groomi.groomidevbackend.auth.token_generator.token_types.TokenType
@@ -16,9 +17,9 @@ class JwtService {
     private val secret: String? = null
 
     fun generateToken(user: UserDashboard, tokenType: TokenType): String? {
-        return Jwts.builder()
-            .subject(user.getId().toString())
-            .claim("email", user.getEmail())
+        val generatedToken = Jwts.builder()
+            .subject(user.id.toString())
+            .claim("email", user.email)
             .claim("type", tokenType.name)
             .issuedAt(Date())
             .expiration(
@@ -26,7 +27,15 @@ class JwtService {
             )
             .signWith(this.signingKey)
             .compact()
+        return generatedToken
     }
+
+    fun getTokenFromHeaderAndExtractUserId(authorizationHeader: String): UUID {
+        val token = authorizationHeader.substring(7); // Strip "Bearer "
+        val userId =  extractUserId(token);
+        return userId;
+    }
+
     fun extractAllClaims(token: String): Claims {
         return Jwts.parser()
             .verifyWith(signingKey)
