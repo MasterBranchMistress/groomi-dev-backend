@@ -2,7 +2,6 @@ package org.groomi.groomidevbackend.dashboard;
 
 import jakarta.validation.Valid;
 
-import org.groomi.groomidevbackend.auth.token_generator.JwtService;
 import org.groomi.groomidevbackend.dashboard.dto.load_user_dashboard.LoadUserDashboardRequest;
 import org.groomi.groomidevbackend.shared_packages.api_response.ApiResponse;
 import org.groomi.groomidevbackend.dashboard.dto.load_user_dashboard.LoadUserDashboardResponse;
