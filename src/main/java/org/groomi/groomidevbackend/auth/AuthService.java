@@ -1,6 +1,5 @@
 package org.groomi.groomidevbackend.auth;
 
-import org.groomi.groomidevbackend.auth.auth_providers.AuthProvider;
 import org.groomi.groomidevbackend.auth.dto.change_password.ChangePasswordRequest;
 import org.groomi.groomidevbackend.auth.dto.change_password.ChangePasswordResponse;
 import org.groomi.groomidevbackend.auth.dto.forgot_password.SendVerificationLinkToUsersEmail;
