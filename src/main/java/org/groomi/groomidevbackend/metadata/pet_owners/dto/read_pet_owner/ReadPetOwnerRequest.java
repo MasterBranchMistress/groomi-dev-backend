@@ -8,6 +8,6 @@ import java.util.UUID;
 @Getter
 @Setter
 public class ReadPetOwnerRequest {
-    private UUID petOwnerId;
-    private String userToken;
+    private  UUID ownerId;
+    private String groomerToken;
 }

@@ -13,5 +13,5 @@ public class CreatePetOwnerRequest {
     String email;
     String phoneNumber;
     String petOwnerPhotoUrl;
-    UUID groomerId;
+    String groomerToken;
 }

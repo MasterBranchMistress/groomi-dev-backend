@@ -1,6 +1,7 @@
 package org.groomi.groomidevbackend.metadata.pet_owners;
 
 import org.groomi.groomidevbackend.auth.token_generator.JwtService;
+import org.groomi.groomidevbackend.auth.token_generator.token_types.TokenType;
 import org.groomi.groomidevbackend.dashboard.UserDashboard;
 import org.groomi.groomidevbackend.dashboard.UserDashboardRepository;
 import org.groomi.groomidevbackend.metadata.pet_owners.dto.create_pet_owner.CreatePetOwnerRequest;
@@ -28,17 +29,17 @@ public class PetOwnerService {
         this.userDashboardRepository =  userDashboardRepository;
     }
     public ReadPetOwnerResponse readPetOwner(ReadPetOwnerRequest request) {
-        UUID userId =  jwtService.getTokenFromHeaderAndExtractUserId("Bearer ");
-        PetOwner petOwnerData = petOwnerRepository.findById(request.getPetOwnerId())
+        UUID groomerId =  jwtService.extractUserId(request.getGroomerToken());
+        PetOwner petOwnerData = petOwnerRepository.findById(request.getOwnerId())
                 .orElseThrow(PetOwnerDoesNotExistException::new);
-        boolean isNotAuthorized = petOwnerRepository.isNotAuthorizedToDoAction(petOwnerData.getGroomerId(), userId);
-        if(isNotAuthorized) throw new UnauthorizedGroomerAction_OWNERS("You do not have permission to view this pet owner's data.");
+        boolean isNotAuthorized = !petOwnerRepository.isOwnersDesignatedGroomer(petOwnerData.getGroomerId(), groomerId);
+        if(isNotAuthorized) throw new UnauthorizedGroomerAction_OWNERS("You do not have permission to view this pet owner's data." + petOwnerData.getGroomerId().toString() + " is not equal to " + groomerId);
         return new ReadPetOwnerResponse(petOwnerData.getFirstName(), petOwnerData.getLastName(), petOwnerData.getPhoneNumber()
         , petOwnerData.getEmail(), petOwnerData.getOwnerPhotoUrl(), petOwnerData.getGroomerId());
     }
 
     public CreatePetOwnerResponse createPetOwner(CreatePetOwnerRequest request){
-        UUID userId =  jwtService.getTokenFromHeaderAndExtractUserId("Bearer ");
+        UUID userId =  jwtService.extractUserId(request.getGroomerToken());
         UserDashboard user = userDashboardRepository.getReferenceById(userId);
         boolean userDoesNotExistOrIsInvalid = user.getId().toString().isEmpty();
         PetOwner petOwner =  new PetOwner(request.getFirstName(), request.getLastName(), request.getEmail(), request.getPhoneNumber(), request.getPetOwnerPhotoUrl(), userId);
