@@ -1,7 +1,6 @@
 package org.groomi.groomidevbackend.metadata.pet_owners;
 
 import org.groomi.groomidevbackend.auth.token_generator.JwtService;
-import org.groomi.groomidevbackend.auth.token_generator.token_types.TokenType;
 import org.groomi.groomidevbackend.dashboard.UserDashboard;
 import org.groomi.groomidevbackend.dashboard.UserDashboardRepository;
 import org.groomi.groomidevbackend.metadata.pet_owners.dto.create_pet_owner.CreatePetOwnerRequest;
